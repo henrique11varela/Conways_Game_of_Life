@@ -1,18 +1,27 @@
 window.addEventListener('load', () => {
+    // Constants
     const canvas = document.getElementById("canvas");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     const minSideSize = canvas.width < canvas.height ? canvas.width : canvas.height;
     const resolution = 20;
     const pixelSize = minSideSize / resolution;
     const pixelGap = 3;
     const framerate = 1;
+
+    //draw
+    let coordinateX = -1;
+    let coordinateY = -1;
+
+
+    //innerworkings
     let mat = [];
 
     /* LOOP */
     function animate() {
-        update(mat);
+        //update(mat);
         draw(mat);
         setTimeout(() => {
             window.requestAnimationFrame(animate);
@@ -29,7 +38,32 @@ window.addEventListener('load', () => {
         }
     }
 
-    /* UPDATE */
+    //MOUSE
+    
+    canvas.addEventListener('mousedown', onMouseDown = (event) => {
+        let coordinateX = Math.floor((event.clientX - rect.left) / pixelSize);
+        let coordinateY = Math.floor((event.clientY - rect.top) / pixelSize);
+        console.log("down", coordinateX, coordinateY);
+        canvas.addEventListener('mousemove', onMouseMove = (event) => {
+            let tempX = Math.floor((event.clientX - rect.left) / pixelSize);
+            let tempY = Math.floor((event.clientY - rect.top) / pixelSize);
+            if (coordinateX != tempX || coordinateY != tempY) {
+                coordinateX = tempX;
+                coordinateY = tempY;
+                console.log("move", coordinateX, coordinateY);
+            }
+        });
+    });
+    
+    canvas.addEventListener('mouseup', onMouseUp = () => {
+        console.log("up");
+        coordinateX = -1;
+        coordinateY = -1;
+        canvas.removeEventListener('mousemove', onMouseMove);
+    });
+    
+    /* 
+    TODO UPDATE */
     function update() {
         let nm = [];
         for (let i = 0; i < mat.length; i++) {
@@ -81,6 +115,7 @@ window.addEventListener('load', () => {
     //animate();
 });
 /* 
+TODO: update
 TODO: play/pause button
 TODO: draw on click
 Any live cell with fewer than two live neighbours dies, as if by underpopulation.
