@@ -3,6 +3,33 @@
     padding: 0;
 }
 
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: 1rem 1fr 2fr 1fr 1rem;
+    grid-template-areas: 
+    ". . . . ."
+    ". controls canvas . ."
+    ". . . . .";
+}
+
+button {
+    padding: 1rem;
+    width: min-content;
+    border-radius: 0.5rem;
+    z-index: 100;
+}
+
 #canvas {
+    grid-area: canvas;
     background-color: gray;
+}
+
+#controls {
+    grid-area: controls;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
