@@ -7,36 +7,52 @@ window.addEventListener('load', () => {
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     const minSideSize = canvas.width < canvas.height ? canvas.width : canvas.height;
-    const resolution = 20; //number of cells on smallest side
+    const resolution = 40; //number of cells on smallest side
     const pixelSize = minSideSize / resolution; //size of cell
-    const pixelGap = 3; //space between cells
-    const framerate = 2; //rough framerate of animation
+    const pixelGap = 2; //space between cells
+    let framerate = 5; //rough framerate of animation
 
     //draw
     let coordinateX = -1;
     let coordinateY = -1;
     let color;
 
-
     //innerworkings
     let mat = [];
+    for (let i = 0; i < resolution; i++) {
+        mat.push([]);
+        for (let j = 0; j < resolution; j++) {
+            mat[i].push(false);
+        }
+    }
 
-    /* LOOP */
+    //! LOOP 
     let intervalID;
 
     function startAnimation() {
-        intervalID = window.setInterval(() => { animate(); }, 1000 / framerate);
+        let framerateInput = document.getElementById("framerate");
+        framerate = framerateInput.value;
+        if (framerate < 1) {
+            framerate = 1;
+            framerateInput.value = 1;
+        } else if (framerate > 60) {
+            framerate = 60;
+            framerateInput.value = 60;
+        }
+        intervalID = setInterval(() => { animate(); }, 1000 / framerate);
         let btn = document.getElementById("btn-play");
+        btn.removeEventListener('click', startAnimation);
         btn.addEventListener('click', stopAnimation);
-        btn.innerHTML = "Pause";
+        btn.innerHTML = "PAUSE";
     }
     
     function stopAnimation() {
         clearInterval(intervalID);
         intervalID = null;
         let btn = document.getElementById("btn-play");
+        btn.removeEventListener('click', stopAnimation);
         btn.addEventListener('click', startAnimation);
-        btn.innerHTML = "Play";
+        btn.innerHTML = "PLAY";
     }
 
     function animate() {
@@ -44,18 +60,18 @@ window.addEventListener('load', () => {
         draw(mat);
     }
 
-    /* DRAW */
+    //! DRAW 
     function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let i = 0; i < mat.length; i++) {
             for (let j = 0; j < mat[i].length; j++) {
                 ctx.fillStyle = mat[i][j] ? "white" : "black";
-                ctx.fillRect(pixelSize * j, pixelSize * i, pixelSize - pixelGap, pixelSize - pixelGap);
+                ctx.fillRect(pixelSize * i, pixelSize * j, pixelSize - pixelGap, pixelSize - pixelGap);
             }
         }
     }
 
-    //MOUSE
-
+    //! MOUSE
     canvas.addEventListener('mousedown', onMouseDown = (event) => { //MOUSE DOWN
         let coordinateX = Math.floor((event.clientX - rect.left) / pixelSize);
         let coordinateY = Math.floor((event.clientY - rect.top) / pixelSize);
@@ -82,12 +98,38 @@ window.addEventListener('load', () => {
         canvas.removeEventListener('mousemove', onMouseMove);
     });
 
-    //Controls
+    //! TOUCH
+    canvas.addEventListener('touchstart', onTouchDown = (event) => { //Touch DOWN
+        let coordinateX = Math.floor((event.changedTouches[0].clientX - rect.left) / pixelSize);
+        let coordinateY = Math.floor((event.changedTouches[0].clientY - rect.top) / pixelSize);
+        color = !mat[coordinateX][coordinateY];
+        mat[coordinateX][coordinateY] = color;
+        ctx.fillStyle = color ? "white" : "black";
+        ctx.fillRect(coordinateX * pixelSize, coordinateY * pixelSize, pixelSize - pixelGap, pixelSize - pixelGap);
+        canvas.addEventListener('touchmove', onTouchMove = (event) => { //Touch MOVE
+            let tempX = Math.floor((event.changedTouches[0].clientX - rect.left) / pixelSize);
+            let tempY = Math.floor((event.changedTouches[0].clientY - rect.top) / pixelSize);
+            if (coordinateX != tempX || coordinateY != tempY) {
+                coordinateX = tempX;
+                coordinateY = tempY;
+                mat[coordinateX][coordinateY] = color;
+                ctx.fillStyle = color ? "white" : "black";
+                ctx.fillRect(coordinateX * pixelSize, coordinateY * pixelSize, pixelSize - pixelGap, pixelSize - pixelGap);
+            }
+        });
+    });
 
+    canvas.addEventListener('touchend', onTouchUp = () => { //Touch UP
+        coordinateX = -1;
+        coordinateY = -1;
+        canvas.removeEventListener('mousemove', onMouseMove);
+    });
+
+    //! CONTROLS
     document.getElementById("btn-play").addEventListener('click', startAnimation);
+    document.getElementById("btn-step").addEventListener('click', animate);
 
-    /* 
-    TODO UPDATE */
+    //! UPDATE 
     function update() {
         let nm = [];
         for (let i = 0; i < mat.length; i++) {
@@ -130,37 +172,19 @@ window.addEventListener('load', () => {
                 } else {
                     nm[i].push(mat[i][j]);
                 }
-                console.log(counter);//!--------------------------------------------
             }
         }
         mat = nm;
     }
 
-
-
-
-
-
-
-
-    for (let i = 0; i < canvas.height / pixelSize; i++) {
-        mat.push([]);
-        for (let j = 0; j < canvas.width / pixelSize; j++) {
-            mat[i].push(false);
-        }
-    }
-    console.log(mat);//!--------------------------------------------
-    //update();
-    console.log(mat);//!--------------------------------------------
+    //! MAIN
+    update();
     draw();
     //animate();
 });
 /* 
-TODO: update
-TODO: play/pause button
-TODO: pause not working
-Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-Any live cell with two or three live neighbours lives on to the next generation.
-Any live cell with more than three live neighbours dies, as if by overpopulation.
-Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+? Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+? Any live cell with two or three live neighbours lives on to the next generation.
+? Any live cell with more than three live neighbours dies, as if by overpopulation.
+? Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 */
