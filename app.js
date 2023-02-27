@@ -2,16 +2,21 @@ window.addEventListener('load', () => {
     // Constants
     const canvas = document.getElementById("canvas");
     const vmin = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
-    canvas.width = vmin * 0.9;
-    canvas.height = vmin * 0.9;
+    canvas.width = vmin * 0.8;
+    canvas.height = vmin * 0.8;
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     const minSideSize = canvas.width < canvas.height ? canvas.width : canvas.height;
-    const resolution = 40; //number of cells on smallest side
+    let resolution; //number of cells on smallest side
+    if (minSideSize > 768) {
+        resolution = 40; //number of cells on smallest side
+    } else {
+        resolution = 20; //number of cells on smallest side
+    }
     const pixelSize = minSideSize / resolution; //size of cell
     const pixelGap = 2; //space between cells
-    let framerate = 5; //rough framerate of animation
-
+    let framerate = 6; //rough framerate of animation
+    
     //draw
     let coordinateX = -1;
     let coordinateY = -1;
@@ -25,6 +30,13 @@ window.addEventListener('load', () => {
             mat[i].push(false);
         }
     }
+
+    //! MAIN
+    document.getElementById("framerate").value = framerate;;
+    update();
+    draw();
+
+    //! ---------------------------------------------------------------------------
 
     //! LOOP 
     let intervalID;
@@ -54,12 +66,16 @@ window.addEventListener('load', () => {
         btn.addEventListener('click', startAnimation);
         btn.innerHTML = "PLAY";
     }
-
+    
     function animate() {
         update(mat);
         draw(mat);
     }
 
+    //! CONTROLS
+    document.getElementById("btn-play").addEventListener('click', startAnimation);
+    document.getElementById("btn-step").addEventListener('click', animate);
+    
     //! DRAW 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -122,12 +138,9 @@ window.addEventListener('load', () => {
     canvas.addEventListener('touchend', onTouchUp = () => { //Touch UP
         coordinateX = -1;
         coordinateY = -1;
-        canvas.removeEventListener('mousemove', onMouseMove);
+        canvas.removeEventListener('touchmove', onTouchMove);
     });
 
-    //! CONTROLS
-    document.getElementById("btn-play").addEventListener('click', startAnimation);
-    document.getElementById("btn-step").addEventListener('click', animate);
 
     //! UPDATE 
     function update() {
@@ -177,10 +190,6 @@ window.addEventListener('load', () => {
         mat = nm;
     }
 
-    //! MAIN
-    update();
-    draw();
-    //animate();
 });
 /* 
 ? Any live cell with fewer than two live neighbours dies, as if by underpopulation.

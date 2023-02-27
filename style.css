@@ -6,30 +6,92 @@
 body {
     min-height: 100vh;
     min-height: 100dvh;
-    display: grid;
-    grid-template-columns: 1rem 1fr 2fr 1fr 1rem;
-    grid-template-areas: 
-    ". . . . ."
-    ". controls canvas . ."
-    ". . . . .";
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: whitesmoke;
 }
 
-button {
-    padding: 1rem;
-    width: min-content;
-    border-radius: 0.5rem;
-    z-index: 100;
-}
-
-#canvas {
-    grid-area: canvas;
-    background-color: gray;
+h1,
+canvas {
+    margin: auto;
+    margin-top: 1rem;
 }
 
 #controls {
-    grid-area: controls;
+    margin-top: 1rem;
+    width: 90vw;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#tutorial {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
+    margin: 2rem;
+}
+
+#tutorial>ol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#tutorial>ol>li {
+    margin: 1rem;
+    text-align: justify;
+}
+
+button {
+    padding: 0.5rem;
+    width: min-content;
+    border-radius: 0.5rem;
+}
+
+
+@media (min-width: 768px) {
+    body {
+        display: grid;
+        grid-template-columns: 1rem 1fr 2fr 1fr 1rem;
+        grid-template-areas:
+            ". . title . ."
+            ". controls canvas tutorial ."
+            ". . . . .";
+    }
+
+    h3 {
+        margin: 1rem;
+    }
+
+    #title {
+        grid-area: title;
+        text-align: center;
+    }
+
+    #canvas {
+        grid-area: canvas;
+    }
+
+    #tutorial {
+        grid-area: tutorial;
+    }
+
+    #controls {
+        grid-area: controls;
+        width: auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        margin: 2rem;
+    }
+
+    button {
+        margin-bottom: 1rem;
+    }
 }
