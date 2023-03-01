@@ -1,68 +1,107 @@
 window.addEventListener('load', () => {
-
-    //*Constants
+    // Constants
+    /* const canvas = document.getElementById("canvas");
     const vmin = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
-    const canvas = document.getElementById("canvas");
-    canvas.height = vmin * .8;
-    canvas.width = vmin * .8;
+    canvas.width = vmin * 0.8;
+    canvas.height = vmin * 0.8;
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
-    const framerateInput = document.getElementById("framerate");
-    const resolutionInput = document.getElementById("resolution");
-    const playBtn = document.getElementById("btn-play");
-    const stepBtn = document.getElementById("btn-step");
-    const pixelGap = 2; //space between cells
-
-    //*Settings
-    let framerate = 10; //rough framerate of animation
+    const minSideSize = canvas.width < canvas.height ? canvas.width : canvas.height;
     let resolution; //number of cells on smallest side
-    if (window.innerWidth > 768) {
-        resolution = 40;
+    if (minSideSize > 768) {
+        resolution = 40; //number of cells on smallest side
     } else {
-        resolution = 20;
+        resolution = 20; //number of cells on smallest side
     }
-    let pixelSize = canvas.width / resolution; //size of cell
-
-    //*GLOBALS
-    //Innerworkings
-    let mat = [];
-    //Draw
+    const pixelSize = minSideSize / resolution; //size of cell
+    const pixelGap = 2; //space between cells
+    let framerate = 6; //rough framerate of animation
+    
+    //draw
     let coordinateX = -1;
     let coordinateY = -1;
     let color;
-    //Animation interval
-    let intervalID;
 
-    //! SETUP
-    framerateInput.value = framerate;
-    resolutionInput.value = resolution;
-
-    //! EVENTS
-    // Button events
-    playBtn.addEventListener('click', startAnimation);
-    stepBtn.addEventListener('click', animate);
-
-    // resolution Enter
-    resolutionInput.addEventListener('keydown', (event) => {
-        if (event.key === "Enter" && resolutionInput.value != resolution) {
-            resolution = parseInt(resolutionInput.value);
-            buildMat();
-            pixelSize = canvas.width / resolution;
-            draw();
-        }
-    });
+    //innerworkings
+    let mat = []; */
     
-    // framerate Enter
-    framerateInput.addEventListener('keydown', (event) => {
-        if (event.key === "Enter" && framerateInput.value != framerate) {
-            framerate = parseInt(framerateInput.value);
-            stopAnimation();
-            startAnimation();
+    //! MAIN
+    /* document.getElementById("resolution").value = resolution;
+    document.getElementById("resolution").addEventListener('keydown', (event) => {
+        if (event.key === "Enter" && document.getElementById("resolution").value != resolution) {
+            resolution = document.getElementById("resolution").value;
+            buildMat();
         }
     });
 
-    // canvas Draw mouse
-    canvas.addEventListener('mousedown', onMouseDown = (event) => { //MOUSE DOWN
+
+    document.getElementById("framerate").value = framerate;
+    buildMat();
+    update();
+    draw(); */
+    
+    //! ---------------------------------------------------------------------------
+    /* function buildMat() {
+        mat = [];
+        for (let i = 0; i < resolution; i++) {
+            mat.push([]);
+            for (let j = 0; j < resolution; j++) {
+                mat[i].push(false);
+            }
+        }
+    } */
+
+    //! LOOP 
+    /* let intervalID;
+
+    function startAnimation() {
+        let framerateInput = document.getElementById("framerate");
+        framerate = framerateInput.value;
+        if (framerate < 1) {
+            framerate = 1;
+            framerateInput.value = 1;
+        } else if (framerate > 60) {
+            framerate = 60;
+            framerateInput.value = 60;
+        }
+        intervalID = setInterval(() => { animate(); }, 1000 / framerate);
+        let btn = document.getElementById("btn-play");
+        btn.removeEventListener('click', startAnimation);
+        btn.addEventListener('click', stopAnimation);
+        btn.innerHTML = "PAUSE";
+    }
+    
+    function stopAnimation() {
+        clearInterval(intervalID);
+        intervalID = null;
+        let btn = document.getElementById("btn-play");
+        btn.removeEventListener('click', stopAnimation);
+        btn.addEventListener('click', startAnimation);
+        btn.innerHTML = "PLAY";
+    }
+    
+    function animate() {
+        update(mat);
+        draw(mat);
+    } */
+
+    //! CONTROLS
+    /* document.getElementById("btn-play").addEventListener('click', startAnimation);
+    document.getElementById("btn-step").addEventListener('click', animate); */
+    
+    /* //! DRAW 
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < mat.length; i++) {
+            for (let j = 0; j < mat[i].length; j++) {
+                ctx.fillStyle = mat[i][j] ? "black" : "white";
+                ctx.fillRect(pixelSize * i, pixelSize * j, pixelSize - pixelGap, pixelSize - pixelGap);
+            }
+        }
+    } */
+
+    //! MOUSE
+    /* canvas.addEventListener('mousedown', onMouseDown = (event) => { //MOUSE DOWN
         let coordinateX = Math.floor((event.clientX - rect.left) / pixelSize);
         let coordinateY = Math.floor((event.clientY - rect.top) / pixelSize);
         color = !mat[coordinateX][coordinateY];
@@ -86,10 +125,10 @@ window.addEventListener('load', () => {
         coordinateX = -1;
         coordinateY = -1;
         canvas.removeEventListener('mousemove', onMouseMove);
-    });
+    }); */
 
-    // canvas Draw touch
-    canvas.addEventListener('touchstart', onTouchDown = (event) => { //Touch DOWN
+    //! TOUCH
+    /* canvas.addEventListener('touchstart', onTouchDown = (event) => { //Touch DOWN
         let coordinateX = Math.floor((event.changedTouches[0].clientX - rect.left) / pixelSize);
         let coordinateY = Math.floor((event.changedTouches[0].clientY - rect.top) / pixelSize);
         color = !mat[coordinateX][coordinateY];
@@ -113,60 +152,10 @@ window.addEventListener('load', () => {
         coordinateX = -1;
         coordinateY = -1;
         canvas.removeEventListener('touchmove', onTouchMove);
-    });
-    
-    //! ANIMATION
-    function startAnimation() {
-        framerate = framerateInput.value;
-        if (framerate < 1) {
-            framerate = 1;
-            framerateInput.value = 1;
-        } else if (framerate > 60) {
-            framerate = 60;
-            framerateInput.value = 60;
-        }
-        intervalID = setInterval(() => { animate(); }, 1000 / framerate);
-        playBtn.removeEventListener('click', startAnimation);
-        playBtn.addEventListener('click', stopAnimation);
-        playBtn.innerHTML = "PAUSE";
-    }
+    }); */
 
-    function stopAnimation() {
-        clearInterval(intervalID);
-        intervalID = null;
-        playBtn.removeEventListener('click', stopAnimation);
-        playBtn.addEventListener('click', startAnimation);
-        playBtn.innerHTML = "PLAY";
-    }
 
-    function animate() {
-        update(mat);
-        draw(mat);
-    }
-
-    //! BUILD MAT
-    function buildMat() {
-        mat = [];
-        for (let i = 0; i < resolution; i++) {
-            mat.push([]);
-            for (let j = 0; j < resolution; j++) {
-                mat[i].push(false);
-            }
-        }
-    }
-
-    //! DRAW 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < mat.length; i++) {
-            for (let j = 0; j < mat[i].length; j++) {
-                ctx.fillStyle = mat[i][j] ? "black" : "white";
-                ctx.fillRect(pixelSize * i, pixelSize * j, pixelSize - pixelGap, pixelSize - pixelGap);
-            }
-        }
-    }
-
-    //! UPDATE 
+    /* //! UPDATE 
     function update() {
         let nm = [];
         for (let i = 0; i < mat.length; i++) {
@@ -212,10 +201,12 @@ window.addEventListener('load', () => {
             }
         }
         mat = nm;
-    }
+    } */
 
-    //! MAIN
-    buildMat();
-    update();
-    draw();
 });
+/* 
+? Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+? Any live cell with two or three live neighbours lives on to the next generation.
+? Any live cell with more than three live neighbours dies, as if by overpopulation.
+? Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+*/
