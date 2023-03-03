@@ -12,7 +12,8 @@ let settings = {
         framerate: document.getElementById("framerate"),
         resolution: document.getElementById("resolution"),
         playBtn: document.getElementById("btn-play"),
-        stepBtn: document.getElementById("btn-step")
+        stepBtn: document.getElementById("btn-step"),
+        applyBtn: document.getElementById("btn-apply")
     },
     values: {
         framerate: 10, //rough framerate of animation
@@ -42,10 +43,15 @@ let intervalID;
 settings.elements.framerate.value = settings.values.framerate;
 settings.elements.resolution.value = settings.values.resolution;
 
-function changeValueFramerate(value) {
-    if (settings.values.framerate + value > 0) {
-        settings.values.framerate += value;
-        settings.elements.framerate.innerHTML = settings.values.framerate;
+function applySettings() {
+    if (settings.values.resolution != settings.elements.resolution.value) {
+        settings.values.resolution = settings.elements.resolution.value;
+        buildMat();
+        pixelSize = canvas.width / settings.values.resolution;
+        draw();
+    }
+    if (settings.values.framerate != settings.elements.framerate.value) {
+        settings.values.framerate = settings.elements.framerate.value;
         if (settings.elements.playBtn.innerHTML == "PAUSE") {
             stopAnimation();
             startAnimation();
@@ -53,20 +59,23 @@ function changeValueFramerate(value) {
     }
 }
 
-function changeValueResolution(value) {
-    if (settings.values.resolution + value > 0) {
-        settings.values.resolution += value;
-        settings.elements.resolution.innerHTML = settings.values.resolution;
-        buildMat();
-        pixelSize = canvas.width / settings.values.resolution;
-        draw();
+settings.elements.framerate.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        applySettings();
     }
-}
+});
+
+settings.elements.resolution.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        applySettings();
+    }
+});
 
 //! EVENTS
 // Button events
 settings.elements.playBtn.addEventListener('click', startAnimation);
 settings.elements.stepBtn.addEventListener('click', animate);
+settings.elements.applyBtn.addEventListener("click", applySettings);
 
 // canvas Draw mouse
 canvas.addEventListener('mousedown', onMouseDown = (event) => { //MOUSE DOWN
@@ -132,6 +141,7 @@ function startAnimation() {
     settings.elements.playBtn.removeEventListener('click', startAnimation);
     settings.elements.playBtn.addEventListener('click', stopAnimation);
     settings.elements.playBtn.innerHTML = "PAUSE";
+    settings.elements.playBtn.classList.add("btn-on");
 }
 
 function stopAnimation() {
@@ -140,6 +150,7 @@ function stopAnimation() {
     settings.elements.playBtn.removeEventListener('click', stopAnimation);
     settings.elements.playBtn.addEventListener('click', startAnimation);
     settings.elements.playBtn.innerHTML = "PLAY";
+    settings.elements.playBtn.classList.remove("btn-on");
 }
 
 function animate() {
@@ -204,7 +215,6 @@ function update() {
                 //look E
                 counter += mat[i][j + 1] ? 1 : 0;
             }
-
             if (!mat[i][j] && counter == 3) {//if dead
                 nm[i].push(true);
             } else if (mat[i][j] && ((counter < 2) || (counter > 3))) { // if alive
