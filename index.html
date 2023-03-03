@@ -17,13 +17,23 @@
         <div>
             <button id="btn-play">PLAY</button>
             <button id="btn-step">STEP</button>
-            <div>
-                <label for="framerate">Framerate</label>
-                <input id="framerate" name="framerate" type="number" min="1" max="60">
+            <div class="inputs">
+                <div>
+                    <button onclick="changeValueFramerate(10)">+10</button>
+                    <button onclick="changeValueFramerate(1)">+1</button>
+                    <button onclick="changeValueFramerate(-1)">-1</button>
+                    <button onclick="changeValueFramerate(-10)">-10</button>
+                </div>
+                <p id="framerate">10</p>
             </div>
-            <div>
-                <label for="resolution">Resolution</label>
-                <input id="resolution" name="resolution" type="number" min="1" max="1000">
+            <div class="inputs">
+                <div>
+                    <button onclick="changeValueResolution(10)">+10</button>
+                    <button onclick="changeValueResolution(1)">+1</button>
+                    <button onclick="changeValueResolution(-1)">-1</button>
+                    <button onclick="changeValueResolution(-10)">-10</button>
+                </div>
+                <p id="resolution">20</p>
             </div>
         </div>
     </div>

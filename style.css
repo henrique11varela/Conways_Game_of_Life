@@ -1,3 +1,32 @@
+:root {
+    --primary: #0d6efd;
+    --secondary: #6c757d;
+    --success: #198754;
+    --info: #0dcaf0;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #f8f9fa;
+    --dark: #343a40;
+
+    --pastel-primary: #6ea8fe;
+    --pastel-secondary: #dee2e6;
+    --pastel-success: #75b798;
+    --pastel-info: #6edff6;
+    --pastel-warning: #ffda6a;
+    --pastel-danger: #ea868f;
+    --pastel-light: #f8f9fa;
+    --pastel-dark: #dee2e6;
+
+    --deep-primary: #084298;
+    --deep-secondary: #495057;
+    --deep-success: #0f5132;
+    --deep-info: #055160;
+    --deep-warning: #664d03;
+    --deep-danger: #842029;
+    --deep-light: #495057;
+    --deep-dark: #343a40;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -9,7 +38,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #ddd;
+    background: linear-gradient(90deg, var(--secondary) 0%, var(--dark) 120%);
 }
 
 h1,
@@ -34,8 +63,26 @@ canvas {
     align-items: center;
 }
 
-#controls>div>* {
+/* #controls>div>* {
     margin-top: 1rem;
+} */
+
+.inputs {
+    display: flex;
+    align-items: center;
+}
+
+.inputs>div {
+    display: flex;
+    flex-direction: column;
+}
+
+.inputs>div>button {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    color: white;
+    background-color: #343a40;
 }
 
 #tutorial {
