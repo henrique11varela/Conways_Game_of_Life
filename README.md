@@ -7,3 +7,4 @@
     <img width="80%" src="https://github.com/henrique11varela/Conways_Game_of_Life/blob/main/game_of_life.gif">
   </a>
 </p>
+![](game_of_life.gif)
