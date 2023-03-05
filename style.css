@@ -49,6 +49,8 @@ canvas {
     background-color: var(--dark);
     border-top: var(--dark) solid 2px;
     border-left: var(--dark) solid 2px;
+    aspect-ratio: 1;
+    width: 90vw;
 }
 
 button {
@@ -149,6 +151,11 @@ svg {
 
     h3 {
         font-size: 2.5rem;
+    }
+
+    canvas {
+        width: auto;
+        height: 80vh;
     }
 
     #title {

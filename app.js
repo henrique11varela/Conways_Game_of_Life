@@ -1,186 +1,132 @@
-/* window.addEventListener('load', () => { */
-const canvas = document.getElementById("canvas");
-const vmin = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
-canvas.height = vmin * .8;
-canvas.width = vmin * .8;
-const rect = canvas.getBoundingClientRect();
-const ctx = canvas.getContext('2d');
-const pixelGap = 2 //space between cells
-
-let settings = {
-    elements: {
-        framerate: document.getElementById("framerate"),
-        resolution: document.getElementById("resolution"),
-        playBtn: document.getElementById("btn-play"),
-        stepBtn: document.getElementById("btn-step"),
-        applyBtn: document.getElementById("btn-apply")
-    },
-    values: {
-        framerate: 10, //rough framerate of animation
-        resolution: 20 //number of cells on smallest side
-    }
+let elements = {
+    canvas: document.getElementById("canvas"),
+    canvasRect: this.canvas.getBoundingClientRect(),
+    canvasCtx: this.canvas.getContext('2d'),
+    framerate: document.getElementById("framerate"),
+    resolution: document.getElementById("resolution"),
+    playBtn: document.getElementById("btn-play"),
+    stepBtn: document.getElementById("btn-step"),
+    applyBtn: document.getElementById("btn-apply")
 };
-
-//*Constants
-
-//*Settings
-if (window.innerWidth > 768) {
-    settings.values.resolution = 40;
-}
-let pixelSize = canvas.width / settings.values.resolution; //size of cell
-
-//*GLOBALS
-//Innerworkings
+let values = {
+    pixelSize: 10,
+    pixelGap: 2,
+    framerate: 10, //rough framerate of animation
+    resolution: 20 //number of cells on smallest side
+};
 let mat = [];
-//Draw
 let coordinateX = -1;
 let coordinateY = -1;
 let color;
-//Animation interval
 let intervalID;
 
-//! SETUP
-settings.elements.framerate.value = settings.values.framerate;
-settings.elements.resolution.value = settings.values.resolution;
-
+//Apply settings
 function applySettings() {
-    if (settings.values.resolution != settings.elements.resolution.value) {
-        settings.values.resolution = settings.elements.resolution.value;
+    if (values.resolution != elements.resolution.value) {
+        values.resolution = elements.resolution.value;
         buildMat();
-        pixelSize = canvas.width / settings.values.resolution;
+        values.pixelSize = elements.canvas.width / values.resolution;
         draw();
     }
-    if (settings.values.framerate != settings.elements.framerate.value) {
-        settings.values.framerate = settings.elements.framerate.value;
-        if (settings.elements.playBtn.innerHTML == "PAUSE") {
+    if (values.framerate != elements.framerate.value) {
+        if (elements.framerate.value > 60) {
+            elements.framerate.value = 60;
+        }
+        values.framerate = elements.framerate.value;
+        if (elements.playBtn.innerHTML == "PAUSE") {
             stopAnimation();
             startAnimation();
         }
     }
 }
 
-settings.elements.framerate.addEventListener("keypress", (event) => {
+//Framerate Enter event
+elements.framerate.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
         applySettings();
     }
 });
 
-settings.elements.resolution.addEventListener("keypress", (event) => {
+//Resolution Enter event
+elements.resolution.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
         applySettings();
     }
 });
 
-//! EVENTS
-// Button events
-settings.elements.playBtn.addEventListener('click', startAnimation);
-settings.elements.stepBtn.addEventListener('click', animate);
-settings.elements.applyBtn.addEventListener("click", applySettings);
-
-// canvas Draw mouse
-canvas.addEventListener('mousedown', onMouseDown = (event) => { //MOUSE DOWN
-    let coordinateX = Math.floor((event.clientX - rect.left) / pixelSize);
-    let coordinateY = Math.floor((event.clientY - rect.top) / pixelSize);
-    color = !mat[coordinateX][coordinateY];
-    mat[coordinateX][coordinateY] = color;
-    ctx.fillStyle = color ? "black" : "white";
-    ctx.fillRect(coordinateX * pixelSize, coordinateY * pixelSize, pixelSize - pixelGap, pixelSize - pixelGap);
-    canvas.addEventListener('mousemove', onMouseMove = (event) => { //MOUSE MOVE
-        let tempX = Math.floor((event.clientX - rect.left) / pixelSize);
-        let tempY = Math.floor((event.clientY - rect.top) / pixelSize);
-        if (coordinateX != tempX || coordinateY != tempY) {
-            coordinateX = tempX;
-            coordinateY = tempY;
-            mat[coordinateX][coordinateY] = color;
-            ctx.fillStyle = color ? "black" : "white";
-            ctx.fillRect(coordinateX * pixelSize, coordinateY * pixelSize, pixelSize - pixelGap, pixelSize - pixelGap);
-        }
-    });
-});
-
-canvas.addEventListener('mouseup', onMouseUp = () => { //MOUSE UP
-    coordinateX = -1;
-    coordinateY = -1;
-    canvas.removeEventListener('mousemove', onMouseMove);
-});
-
-// canvas Draw touch
-canvas.addEventListener('touchstart', onTouchDown = (event) => { //Touch DOWN
-    let coordinateX = Math.floor((event.changedTouches[0].clientX - rect.left) / pixelSize);
-    let coordinateY = Math.floor((event.changedTouches[0].clientY - rect.top) / pixelSize);
-    color = !mat[coordinateX][coordinateY];
-    mat[coordinateX][coordinateY] = color;
-    ctx.fillStyle = color ? "white" : "black";
-    ctx.fillRect(coordinateX * pixelSize, coordinateY * pixelSize, pixelSize - pixelGap, pixelSize - pixelGap);
-    canvas.addEventListener('touchmove', onTouchMove = (event) => { //Touch MOVE
-        let tempX = Math.floor((event.changedTouches[0].clientX - rect.left) / pixelSize);
-        let tempY = Math.floor((event.changedTouches[0].clientY - rect.top) / pixelSize);
-        if (coordinateX != tempX || coordinateY != tempY) {
-            coordinateX = tempX;
-            coordinateY = tempY;
-            mat[coordinateX][coordinateY] = color;
-            ctx.fillStyle = color ? "white" : "black";
-            ctx.fillRect(coordinateX * pixelSize, coordinateY * pixelSize, pixelSize - pixelGap, pixelSize - pixelGap);
-        }
-    });
-});
-
-canvas.addEventListener('touchend', onTouchUp = () => { //Touch UP
-    coordinateX = -1;
-    coordinateY = -1;
-    canvas.removeEventListener('touchmove', onTouchMove);
-});
-
-//! ANIMATION
+//Start animation
 function startAnimation() {
-    if (settings.values.framerate > 60) {
-        settings.values.framerate = 60;
-        settings.elements.framerate.value = 60;
-    }
-    intervalID = setInterval(() => { animate(); }, 1000 / settings.values.framerate);
-    settings.elements.playBtn.removeEventListener('click', startAnimation);
-    settings.elements.playBtn.addEventListener('click', stopAnimation);
-    settings.elements.playBtn.innerHTML = "PAUSE";
-    settings.elements.playBtn.classList.add("btn-on");
+    intervalID = setInterval(() => { animate(); }, 1000 / values.framerate);
+    elements.playBtn.removeEventListener('click', startAnimation);
+    elements.playBtn.addEventListener('click', stopAnimation);
+    elements.playBtn.innerHTML = "PAUSE";
+    elements.playBtn.classList.add("btn-on");
 }
 
+//Stop animation
 function stopAnimation() {
     clearInterval(intervalID);
     intervalID = null;
-    settings.elements.playBtn.removeEventListener('click', stopAnimation);
-    settings.elements.playBtn.addEventListener('click', startAnimation);
-    settings.elements.playBtn.innerHTML = "PLAY";
-    settings.elements.playBtn.classList.remove("btn-on");
+    elements.playBtn.removeEventListener('click', stopAnimation);
+    elements.playBtn.addEventListener('click', startAnimation);
+    elements.playBtn.innerHTML = "PLAY";
+    elements.playBtn.classList.remove("btn-on");
 }
 
+//Animate
 function animate() {
-    update(mat);
-    draw(mat);
+    update();
+    draw();
 }
 
-//! BUILD MAT
+function mouseMoveOn(event) {
+    let tempX = Math.floor((event.clientX - elements.canvasRect.left) / values.pixelSize);
+    let tempY = Math.floor((event.clientY - elements.canvasRect.top) / values.pixelSize);
+    if (coordinateX != tempX || coordinateY != tempY) {
+        coordinateX = tempX;
+        coordinateY = tempY;
+        mat[coordinateX][coordinateY] = color;
+        elements.canvasCtx.fillStyle = color ? "black" : "white";
+        elements.canvasCtx.fillRect(coordinateX * values.pixelSize, coordinateY * values.pixelSize, values.pixelSize - values.pixelGap, values.pixelSize - values.pixelGap);
+    }
+}
+
+function mouseDrawOn(event) {
+    coordinateX = Math.floor((event.clientX - elements.canvasRect.left) / values.pixelSize);
+    coordinateY = Math.floor((event.clientY - elements.canvasRect.top) / values.pixelSize);
+    color = !mat[coordinateX][coordinateY];
+    mat[coordinateX][coordinateY] = color;
+    elements.canvasCtx.fillStyle = color ? "black" : "white";
+    elements.canvasCtx.fillRect(coordinateX * values.pixelSize, coordinateY * values.pixelSize, values.pixelSize - values.pixelGap, values.pixelSize - values.pixelGap);
+    elements.canvas.addEventListener('mousemove', mouseMoveOn);
+}
+
+function mouseMoveOff(event) {
+    coordinateX = -1;
+    coordinateY = -1;
+    elements.canvas.removeEventListener('mousemove', mouseMoveOn);
+}
+
 function buildMat() {
     mat = [];
-    for (let i = 0; i < settings.values.resolution; i++) {
+    for (let i = 0; i < values.resolution; i++) {
         mat.push([]);
-        for (let j = 0; j < settings.values.resolution; j++) {
+        for (let j = 0; j < values.resolution; j++) {
             mat[i].push(false);
         }
     }
 }
 
-//! DRAW 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    elements.canvasCtx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
     for (let i = 0; i < mat.length; i++) {
         for (let j = 0; j < mat[i].length; j++) {
-            ctx.fillStyle = mat[i][j] ? "black" : "white";
-            ctx.fillRect(pixelSize * i, pixelSize * j, pixelSize - pixelGap, pixelSize - pixelGap);
+            elements.canvasCtx.fillStyle = mat[i][j] ? "black" : "white";
+            elements.canvasCtx.fillRect(values.pixelSize * i, values.pixelSize * j, values.pixelSize - values.pixelGap, values.pixelSize - values.pixelGap);
         }
     }
 }
 
-//! UPDATE 
 function update() {
     let nm = [];
     for (let i = 0; i < mat.length; i++) {
@@ -227,8 +173,34 @@ function update() {
     mat = nm;
 }
 
-//! MAIN
-buildMat();
-update();
-draw();
-/* }); */
+
+
+
+
+
+
+
+function Main() {
+    //resolution for desktop
+    if (window.innerWidth > 768) {
+        values.resolution = 40;
+    }
+    elements.canvas.width = elements.canvasRect.width;
+    elements.canvas.height = elements.canvasRect.height;
+    // pixelsize calc
+    values.pixelSize = elements.canvas.width / values.resolution;
+    elements.framerate.value = values.framerate;
+    elements.resolution.value = values.resolution;
+    //add event listeners
+    elements.playBtn.addEventListener('click', startAnimation);
+    elements.stepBtn.addEventListener('click', animate);
+    elements.applyBtn.addEventListener("click", applySettings);
+    elements.canvas.addEventListener('mousedown', mouseDrawOn);
+    elements.canvas.addEventListener('mouseup', mouseMoveOff);
+
+    buildMat();
+    update();
+    draw();
+}
+
+Main();
